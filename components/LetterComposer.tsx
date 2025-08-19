@@ -37,7 +37,7 @@ export default function LetterComposer() {
     const timer1 = setTimeout(() => setShowTitle(true), 600) // Title fades in
     const timer2 = setTimeout(() => setHideTitle(true), 3400) // Title starts fading out (200ms before textarea)
     const timer3 = setTimeout(() => setShowTextArea(true), 3600) // Textarea fades in as title fades out
-    const timer4 = setTimeout(() => setShowInputs(true), 4600) // Inputs fade in
+    const timer4 = setTimeout(() => setShowInputs(true), 6600) // Inputs fade in (increased by 2s)
 
     return () => {
       clearTimeout(timer1)
@@ -171,7 +171,7 @@ export default function LetterComposer() {
                 className={`${styles.sendButton} ${shakeButton ? styles.shake : ''}`}
                 disabled={isLoading}
               >
-                {isLoading ? 'sending...' : 'send'}
+                {isLoading ? '' : 'send'}
               </button>
             </div>
           )}
