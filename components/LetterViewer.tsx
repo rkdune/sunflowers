@@ -71,7 +71,7 @@ export default function LetterViewer({ letter }: LetterViewerProps) {
           </div>
 
           <div className={styles.letterSignature}>
-            <p>best,</p>
+            <p>keep shining,</p>
             {letter.sender_name && <p>{letter.sender_name}</p>}
             {letter.return_address && (
               <p>

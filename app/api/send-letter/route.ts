@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     const { error: emailError } = await resend.emails.send({
       from: 'letters@rohankalia.dev',
       to: [recipient_email],
-      subject: 'Someone sent you a letter',
+      subject: 'Someone sent you a sunflower 🌻',
       html: `
         <div style="font-family: 'Courier New', monospace; color: #161616; padding: 20px;">
           <p>Someone sent you a letter.</p>

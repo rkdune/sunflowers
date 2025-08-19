@@ -19,6 +19,8 @@ export default function LetterComposer() {
   const [hideTitle, setHideTitle] = useState(false)
   const [showTextArea, setShowTextArea] = useState(false)
   const [showInputs, setShowInputs] = useState(false)
+  const [showSunflower, setShowSunflower] = useState(false)
+  const [sunflowerLines, setSunflowerLines] = useState(0)
 
   useEffect(() => {
     const recipient = searchParams?.get('recipient')
@@ -46,6 +48,50 @@ export default function LetterComposer() {
       clearTimeout(timer4)
     }
   }, [])
+
+  // Sunflower ASCII animation
+  useEffect(() => {
+    if (showSunflower) {
+      const sunflowerAscii = [
+        '                     _',
+        '                  _(_)_                          wWWWw   _',
+        '      @@@@       (_)@(_)   vVVVv     _     @@@@  (___) _(_)_',
+        '     @@()@@ wWWWw  (_)\\    (___)   _(_)_  @@()@@   Y  (_)@(_)',
+        '      @@@@  (___)     `|/    Y    (_)@(_)  @@@@   \\|/   (_)\\',
+        '       /      Y       \\|    \\|/    /(_)    \\|      |/      |',
+        '    \\ |     \\ |/       | / \\ | /  \\|/       |/    \\|      \\|/',
+        'jgs \\\\|//   \\\\|///  \\\\\\|//\\\\\\|/// \\|///  \\\\\\|//  \\\\|//  \\\\\\|//',
+        '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
+      ]
+
+      const animateLines = () => {
+        if (sunflowerLines < sunflowerAscii.length) {
+          setSunflowerLines(prev => prev + 1)
+        }
+      }
+
+      const timer = setTimeout(animateLines, 100) // 0.1s delay
+      return () => clearTimeout(timer)
+    }
+  }, [showSunflower, sunflowerLines])
+
+  const renderSunflower = () => {
+    const sunflowerAscii = [
+      '                     _',
+      '                  _(_)_                          wWWWw   _',
+      '      @@@@       (_)@(_)   vVVVv     _     @@@@  (___) _(_)_',
+      '     @@()@@ wWWWw  (_)\\    (___)   _(_)_  @@()@@   Y  (_)@(_)',
+      '      @@@@  (___)     `|/    Y    (_)@(_)  @@@@   \\|/   (_)\\',
+      '       /      Y       \\|    \\|/    /(_)    \\|      |/      |',
+      '    \\ |     \\ |/       | / \\ | /  \\|/       |/    \\|      \\|/',
+      'jgs \\\\|//   \\\\|///  \\\\\\|//\\\\\\|/// \\|///  \\\\\\|//  \\\\|//  \\\\\\|//',
+      '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
+    ]
+    
+    return sunflowerAscii.slice(0, sunflowerLines).map((line, index) => (
+      <div key={index}>{line}</div>
+    ))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -88,6 +134,8 @@ export default function LetterComposer() {
 
       if (response.ok) {
         setMessage('Letter sent successfully!')
+        setShowSunflower(true)
+        setSunflowerLines(0)
         setContent('')
         setRecipientEmail('')
         setRecipientName('')
@@ -171,7 +219,7 @@ export default function LetterComposer() {
                 className={`${styles.sendButton} ${shakeButton ? styles.shake : ''}`}
                 disabled={isLoading}
               >
-                {isLoading ? '' : 'send'}
+                {isLoading ? '...' : 'send'}
               </button>
             </div>
           )}
@@ -179,7 +227,15 @@ export default function LetterComposer() {
 
         {message && (
           <div className={`${styles.message} ${message.includes('successfully') ? styles.success : styles.error}`}>
-            {message}
+            {showSunflower ? (
+              <div className={styles.sunflowerContainer}>
+                <pre className={styles.sunflowerArt}>
+                  {renderSunflower()}
+                </pre>
+              </div>
+            ) : (
+              message
+            )}
           </div>
         )}
       </div>
