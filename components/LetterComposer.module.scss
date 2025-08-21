@@ -71,7 +71,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 0px;
 }
 
 .input {
@@ -81,7 +81,7 @@
   background-color: transparent;
   border: 1px solid #161616;
   font-family: 'Xanh Mono', monospace;
-  font-size: 14px;
+  font-size: 16px;
   color: #161616;
   outline: none;
   box-sizing: border-box;
@@ -94,18 +94,59 @@
   &:focus {
     outline: none;
   }
+
+  &:first-child {
+    border-bottom: none;
+  }
 }
 
 
-.sendButton {
+.buttonColumn {
   flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.infoButton {
   width: 80px;
   height: 40px;
-  padding: 12px 20px;
+  padding: 0px 0px;
   background-color: #a1a1a1;
   border: 1px solid #161616;
   font-family: 'Xanh Mono', monospace;
-  font-size: 14px;
+  font-size: 18px;
+  color: #161616;
+  cursor: pointer;
+  outline: none;
+  box-sizing: border-box;
+  border-bottom: none;
+  
+  // Inset and outside shadows
+  box-shadow: 
+    inset 2px 2px 4px rgba(0, 0, 0, 0.3),
+    2px 2px 6px rgba(0, 0, 0, 0.2);
+
+  &:hover {
+    background-color: #fcea7e;
+  }
+
+  &:active {
+    box-shadow: 
+      inset 4px 4px 6px rgba(0, 0, 0, 0.4),
+      1px 1px 3px rgba(0, 0, 0, 0.1);
+    transform: translateY(1px);
+  }
+}
+
+.sendButton {
+  width: 80px;
+  height: 40px;
+  padding: 0px 0px;
+  background-color: #a1a1a1;
+  border: 1px solid #161616;
+  font-family: 'Xanh Mono', monospace;
+  font-size: 18px;
   color: #161616;
   cursor: pointer;
   outline: none;
@@ -206,4 +247,84 @@
   margin: 0;
   color: #161616;
   white-space: pre;
+}
+
+.infoSection {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+  margin-bottom: 15px;
+  align-items: flex-start;
+}
+
+.infoContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.tabButtons {
+  display: flex;
+  gap: 0px;
+}
+
+.tabButton {
+  flex: 1;
+  height: 40px;
+  padding: 12px 20px;
+  background-color: #a1a1a1;
+  border: 1px solid #161616;
+  font-family: 'Xanh Mono', monospace;
+  font-size: 14px;
+  color: #161616;
+  cursor: pointer;
+  outline: none;  
+  box-sizing: border-box;
+
+  &:not(:first-child) {
+    border-left: none;
+  }
+  
+  &:hover:not(.activeTab) {
+    background-color: #b8b8b8;
+  }
+
+  &:active:not(.activeTab) {
+    background-color: #909090;
+  }
+}
+
+.activeTab {
+  background-color: #fcea7e !important;
+  
+  &:hover {
+    background-color: #fcea7e !important;
+  }
+}
+
+.tabContent {
+  min-height: 120px;
+  padding: 20px;
+  background-color: transparent;
+  border: 1px solid #161616;
+  font-family: 'Xanh Mono', monospace;
+  font-size: 14px;
+  color: #161616;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.poemContent {
+  p {
+    margin: 0 0 0.5em 0;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  br {
+    line-height: 0.5;
+  }
 }

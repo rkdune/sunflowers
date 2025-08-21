@@ -21,6 +21,9 @@ export default function LetterComposer() {
   const [showInputs, setShowInputs] = useState(false)
   const [showSunflower, setShowSunflower] = useState(false)
   const [sunflowerLines, setSunflowerLines] = useState(0)
+  const [showInfoMode, setShowInfoMode] = useState(false)
+  const [selectedTab, setSelectedTab] = useState<'poem' | 'why' | 'other'>('poem')
+  const [showInfoContent, setShowInfoContent] = useState(false)
 
   useEffect(() => {
     const recipient = searchParams?.get('recipient')
@@ -91,6 +94,28 @@ export default function LetterComposer() {
     return sunflowerAscii.slice(0, sunflowerLines).map((line, index) => (
       <div key={index}>{line}</div>
     ))
+  }
+
+  const handleInfoClick = () => {
+    if (showInfoMode) {
+      // Going back to email fields
+      setShowInfoContent(false)
+      setTimeout(() => {
+        setShowInfoMode(false)
+        setShowInputs(true) // Show email inputs with fade
+      }, 300) // Wait for fade out
+    } else {
+      // Going to info mode
+      setShowInputs(false)
+      setTimeout(() => {
+        setShowInfoMode(true)
+        setShowInfoContent(true)
+      }, 300) // Wait for fade out
+    }
+  }
+
+  const handleTabClick = (tab: 'poem' | 'why' | 'other') => {
+    setSelectedTab(tab)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -172,7 +197,7 @@ export default function LetterComposer() {
             />
           )}
           
-          {showInputs && (
+          {showInputs && !showInfoMode && (
             <div className={`${styles.inputGrid} ${styles.fadeIn}`}>
               <div className={styles.inputColumn}>
                 <input
@@ -214,13 +239,102 @@ export default function LetterComposer() {
                 />
               </div>
               
-              <button 
-                type="submit" 
-                className={`${styles.sendButton} ${shakeButton ? styles.shake : ''}`}
-                disabled={isLoading}
-              >
-                {isLoading ? '...' : 'send'}
-              </button>
+              <div className={styles.buttonColumn}>
+                <button 
+                  type="button"
+                  className={styles.infoButton}
+                  onClick={handleInfoClick}
+                >
+                </button>
+                <button 
+                  type="submit" 
+                  className={`${styles.sendButton} ${shakeButton ? styles.shake : ''}`}
+                  disabled={isLoading}
+                >
+                  {isLoading ? '...' : 'send'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {showInfoMode && showInfoContent && (
+            <div className={`${styles.infoSection} ${styles.fadeIn}`}>
+              <div className={styles.infoContent}>
+                <div className={styles.tabButtons}>
+                  <button 
+                    type="button"
+                    className={`${styles.tabButton} ${selectedTab === 'poem' ? styles.activeTab : ''}`}
+                    onClick={() => handleTabClick('poem')}
+                  >
+                    poem
+                  </button>
+                  <button 
+                    type="button"
+                    className={`${styles.tabButton} ${selectedTab === 'why' ? styles.activeTab : ''}`}
+                    onClick={() => handleTabClick('why')}
+                  >
+                    why
+                  </button>
+                  <button 
+                    type="button"
+                    className={`${styles.tabButton} ${selectedTab === 'other' ? styles.activeTab : ''}`}
+                    onClick={() => handleTabClick('other')}
+                  >
+                    other
+                  </button>
+                </div>
+                
+                <div className={styles.tabContent}>
+                  {selectedTab === 'poem' && (
+                    <div className={styles.poemContent}>
+                      <p>i want to create a field of flowers.</p>
+                      <p>the sky is a perfect blue.</p>
+                      <p>we're overlooking a cliff, the sun is setting.</p>
+                      <br />
+                      <p>interspersed within the tall grass is you, your flower.</p>
+                      <p>what you mean to me</p>
+                      <p>in my heart.</p>
+                    </div>
+                  )}
+                  {selectedTab === 'why' && (
+                    <div className={styles.poemContent}>
+                      <p>i made this site as a gift to my friends. thank you for being important parts of my life.
+                      </p>
+                      <hr></hr> 
+                      <p>
+
+                        words that are too important, too personal, to send over a text deserve a place of their own.
+
+                        when you trade the convenience of a text to write a letter, you are sending more than the words you write. the method confers meaning. 🌻
+                      </p>
+                    </div>
+                  )}
+                  {selectedTab === 'other' && (
+                    <div className={styles.poemContent}>
+                      <p>all sunflowers are end-to-end encrypted.</p>
+                      <a href="https://github.com/rkdune/letters">source code (github)</a>
+                      <p></p>
+                      <a href="https://www.youtube.com/shorts/W5TVfUNZAvQ">the most personal is the most creative (video)</a>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className={styles.buttonColumn}>
+                <button 
+                  type="button"
+                  className={styles.infoButton}
+                  onClick={handleInfoClick}
+                >
+                </button>
+                <button 
+                  type="submit" 
+                  className={`${styles.sendButton} ${shakeButton ? styles.shake : ''}`}
+                  disabled={isLoading}
+                >
+                  {isLoading ? '...' : 'send'}
+                </button>
+              </div>
             </div>
           )}
         </form>
