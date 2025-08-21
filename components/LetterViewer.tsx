@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { importKey, decrypt } from '@root/lib/crypto'
 import styles from './LetterViewer.module.scss'
 import { Letter } from '@root/lib/supabase'
 
@@ -11,19 +12,41 @@ interface LetterViewerProps {
 export default function LetterViewer({ letter }: LetterViewerProps) {
   const [isAnimating, setIsAnimating] = useState(false)
   const [showLetter, setShowLetter] = useState(false)
+  const [content, setContent] = useState<string | null>(null)
+  const [decryptError, setDecryptError] = useState(false)
 
   useEffect(() => {
-    // Start animation automatically when component mounts
-    const timer = setTimeout(() => {
-      setIsAnimating(true)
-      // Show letter content after card slides out
-      setTimeout(() => {
-        setShowLetter(true)
-      }, 2400) // 75% of previous timing
-    }, 1500) // 75% of previous timing
+    const decryptContent = async () => {
+      try {
+        const keyData = window.location.hash.slice(1)
+        if (!keyData) {
+          setDecryptError(true)
+          return
+        }
+        
+        const key = await importKey(keyData)
+        const decryptedContent = await decrypt(letter.ciphertext, letter.iv, key)
+        setContent(decryptedContent)
+      } catch {
+        setDecryptError(true)
+      }
+    }
 
-    return () => clearTimeout(timer)
-  }, [])
+    decryptContent()
+  }, [letter])
+
+  useEffect(() => {
+    if (content !== null || decryptError) {
+      const timer = setTimeout(() => {
+        setIsAnimating(true)
+        setTimeout(() => {
+          setShowLetter(true)
+        }, 2400)
+      }, 1500)
+
+      return () => clearTimeout(timer)
+    }
+  }, [content, decryptError])
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -52,40 +75,55 @@ export default function LetterViewer({ letter }: LetterViewerProps) {
 
       {showLetter && (
         <div className={`${styles.letterContent} ${styles.fadeIn}`}>
-          <div className={styles.letterHeader}>
-            <div className={styles.letterDate}>
-              {formatDate(letter.created_at)}
+          {decryptError ? (
+            <div className={styles.letterBody}>
+              <p>This letter cannot be opened without the correct link.</p>
+              <p>Please make sure you have the complete URL with the decryption key.</p>
             </div>
-          </div>
+          ) : content ? (
+            <>
+              <div className={styles.letterHeader}>
+                <div className={styles.letterDate}>
+                  {formatDate(letter.created_at)}
+                </div>
+              </div>
 
-          <div className={styles.letterGreeting}>
-            <p>dear {letter.recipient_name},</p>
-          </div>
-          
-          <div className={styles.letterBody}>
-            {letter.content.split('\n').map((paragraph, index) => (
-              <p key={index} className={styles.paragraph}>
-                {paragraph}
-              </p>
-            ))}
-          </div>
+              <div className={styles.letterGreeting}>
+                <p>dear {letter.recipient_name},</p>
+              </div>
+              
+              <div className={styles.letterBody}>
+                {content.split('\n').map((paragraph, index) => (
+                  <p key={index} className={styles.paragraph}>
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className={styles.letterBody}>
+              <p>Decrypting letter...</p>
+            </div>
+          )}
 
-          <div className={styles.letterSignature}>
-            <p>keep shining,</p>
-            {letter.sender_name && <p>{letter.sender_name}</p>}
-            {letter.return_address && (
-              <p>
-                <a 
-                  href={`/?recipient=${encodeURIComponent(letter.return_address)}${letter.sender_name ? `&recipient_name=${encodeURIComponent(letter.sender_name)}` : ''}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.returnAddressLink}
-                >
-                  send back a letter 🌻
-                </a>
-              </p>
-            )}
-          </div>
+          {content && (
+            <div className={styles.letterSignature}>
+              <p>keep shining,</p>
+              {letter.sender_name && <p>{letter.sender_name}</p>}
+              {letter.return_address && (
+                <p>
+                  <a 
+                    href={`/?recipient=${encodeURIComponent(letter.return_address)}${letter.sender_name ? `&recipient_name=${encodeURIComponent(letter.sender_name)}` : ''}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.returnAddressLink}
+                  >
+                    send back a letter 🌻
+                  </a>
+                </p>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

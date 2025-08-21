@@ -7,7 +7,8 @@ export const supabase = createClient(supabaseUrl, supabaseKey)
 
 export type Letter = {
   id: string
-  content: string
+  ciphertext: string
+  iv: string
   recipient_email: string
   recipient_name: string
   sender_name: string | null

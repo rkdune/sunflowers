@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { generateKey, encrypt, exportKey } from '@root/lib/crypto'
 import styles from './LetterComposer.module.scss'
 
 export default function LetterComposer() {
@@ -143,22 +144,29 @@ export default function LetterComposer() {
     setMessage('')
 
     try {
+      const key = await generateKey()
+      const encrypted = await encrypt(content.trim(), key)
+      const keyData = await exportKey(key)
+      
       const response = await fetch('/api/send-letter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: content.trim(),
+          ciphertext: encrypted.ciphertext,
+          iv: encrypted.iv,
           recipient_email: recipientEmail.trim(),
           recipient_name: recipientName.trim(),
           sender_name: senderName.trim() || 'Anonymous',
-          return_address: returnAddress.trim() || null
+          return_address: returnAddress.trim() || null,
+          key: keyData
         })
       })
 
       const result = await response.json()
 
       if (response.ok) {
-        setMessage('Letter sent successfully!')
+        const letterUrl = `${window.location.origin}/letter/${result.letterId}#${keyData}`
+        setMessage(`Letter sent! Share this link: ${letterUrl}`)
         setShowSunflower(true)
         setSunflowerLines(0)
         setContent('')
@@ -311,7 +319,7 @@ export default function LetterComposer() {
                   )}
                   {selectedTab === 'other' && (
                     <div className={styles.poemContent}>
-                      <p>all sunflowers are end-to-end encrypted.</p>
+                      <p>all sunflowers are end-to-end encrypted</p>
                       <a href="https://github.com/rkdune/letters">source code (github)</a>
                       <p></p>
                       <a href="https://www.youtube.com/shorts/W5TVfUNZAvQ">the most personal is the most creative (video)</a>
@@ -340,7 +348,7 @@ export default function LetterComposer() {
         </form>
 
         {message && (
-          <div className={`${styles.message} ${message.includes('successfully') ? styles.success : styles.error}`}>
+          <div className={`${styles.message} ${message.includes('successfully') || message.includes('Letter sent') ? styles.success : styles.error}`}>
             {showSunflower ? (
               <div className={styles.sunflowerContainer}>
                 <pre className={styles.sunflowerArt}>

@@ -6,11 +6,11 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request: NextRequest) {
   try {
-    const { content, recipient_email, recipient_name, sender_name, return_address } = await request.json()
+    const { ciphertext, iv, recipient_email, recipient_name, sender_name, return_address, key } = await request.json()
 
-    if (!content || !recipient_email || !recipient_name) {
+    if (!ciphertext || !iv || !recipient_email || !recipient_name) {
       return NextResponse.json(
-        { error: 'Content, recipient email, and recipient name are required' },
+        { error: 'Encrypted content, recipient email, and recipient name are required' },
         { status: 400 }
       )
     }
@@ -20,7 +20,8 @@ export async function POST(request: NextRequest) {
       .from('letters')
       .insert([
         {
-          content,
+          ciphertext,
+          iv,
           recipient_email,
           recipient_name,
           sender_name: sender_name || null,
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // Get the base URL for the letter link
     const baseUrl = request.headers.get('origin') || 'http://localhost:10000'
-    const letterUrl = `${baseUrl}/letter/${letter.id}`
+    const letterUrl = `${baseUrl}/letter/${letter.id}#${key}`
 
     // Send email notification
     const { error: emailError } = await resend.emails.send({
